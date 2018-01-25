@@ -1,9 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/wayneashleyberry/dayzero-app/pkg/coct"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -33,6 +37,23 @@ func main() {
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
+	})
+
+	r.Get("/api/dashboard", func(w http.ResponseWriter, r *http.Request) {
+		body, err := coct.Get()
+		if err != nil {
+			log.Fatal(err)
+		}
+		dash, err := coct.Parse(body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		b, err := json.Marshal(dash)
+		if err != nil {
+			log.Fatal(err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
 	})
 
 	port := strconv.FormatInt(s.Port, 10)

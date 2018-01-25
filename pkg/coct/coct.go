@@ -2,6 +2,7 @@ package coct
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -74,23 +75,26 @@ func Parse(r io.Reader) (Dashboard, error) {
 	// Day Zero
 
 	dayZero, err := getDayZero(doc)
-	if err == nil {
-		d.DayZero = dayZero
+	if err != nil {
+		return d, err
 	}
+	d.DayZero = dayZero
 
 	// Dam Level
 
 	level, err := getDamLevel(doc)
-	if err == nil {
-		d.Dams.Level = level
+	if err != nil {
+		return d, err
 	}
+	d.Dams.Level = level
 
 	// CapeTonian Amount
 
 	amount, err := getCapeTonianAmount(doc)
-	if err == nil {
-		d.CapeTonians.Amount = amount
+	if err != nil {
+		return d, err
 	}
+	d.CapeTonians.Amount = amount
 
 	return d, nil
 }
@@ -111,12 +115,16 @@ func getDamLevel(doc *goquery.Document) (float64, error) {
 
 func getDayZero(doc *goquery.Document) (time.Time, error) {
 	h3 := doc.Find("h3").First().Text()
-	h3 = strings.TrimSpace(h3)
 	h3 = strings.Replace(h3, " ", "", -1)
+	h3 = strings.Replace(h3, "\n", "", -1)
+
+	if len(h3) < 8 {
+		return time.Now(), errors.New("invalid length for h3")
+	}
 
 	dayS := h3[0:2]
-	monthS := h3[3:5]
-	yearS := h3[6:10]
+	monthS := h3[2:4]
+	yearS := h3[4:8]
 
 	day, err := strconv.Atoi(dayS)
 	if err != nil {
