@@ -70,12 +70,12 @@ func GetCached(ctx context.Context, r *http.Request) (io.Reader, bool, error) {
 		return reader, true, nil
 	}
 
-	uncached, err := Get(ctx)
+	fresh, err := Get(ctx)
 	if err != nil {
 		return bytes.NewReader([]byte("")), false, err
 	}
 
-	value, err := ioutil.ReadAll(uncached)
+	value, err := ioutil.ReadAll(fresh)
 	if err != nil {
 		return bytes.NewReader([]byte("")), false, err
 	}
@@ -87,16 +87,20 @@ func GetCached(ctx context.Context, r *http.Request) (io.Reader, bool, error) {
 	}
 	memcache.Add(ctx, newItem)
 
-	return uncached, false, nil
+	return bytes.NewReader(value), false, nil
 
 }
 
 func Get(ctx context.Context) (io.Reader, error) {
 	client := urlfetch.Client(ctx)
-	resp, err := client.Get("http://coct.co/water-dashboard/")
 
+	resp, err := client.Get("http://coct.co/water-dashboard/")
 	if err != nil {
 		return bytes.NewReader([]byte("")), err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return bytes.NewReader([]byte("")), errors.New("bad status: " + resp.Status)
 	}
 
 	defer resp.Body.Close()
