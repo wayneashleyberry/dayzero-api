@@ -40,9 +40,10 @@ type Trend struct {
 }
 
 type Dams struct {
-	Description string  `json:"description"`
-	Level       float64 `json:"level"`
-	Trend       Trend   `json:"trend"`
+	Description    string  `json:"description"`
+	DescriptionURL string  `json:"description_url"`
+	Level          float64 `json:"level"`
+	Trend          Trend   `json:"trend"`
 }
 
 type CapeTonians struct {
@@ -90,6 +91,10 @@ func Parse(r io.Reader) (Dashboard, error) {
 	d.Dams.Description = clean(doc.Find(".header").Eq(2).Find("p").Text())
 	d.CapeTonians.Description = clean(doc.Find(".header").Eq(3).Find("p").Text())
 	d.Other.Description = clean(doc.Find(".header").Eq(4).Find("p").Text())
+	href, exists := doc.Find(".header").Eq(2).Find("a").Attr("href")
+	if exists {
+		d.Dams.DescriptionURL = href
+	}
 
 	dayZero, err := getDayZero(doc)
 	if err != nil {

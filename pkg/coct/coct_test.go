@@ -173,6 +173,13 @@ func TestDamsDescription(t *testing.T) {
 	if actual != expected {
 		t.Fatalf("expected `%v`, got `%v`", expected, actual)
 	}
+
+	expectedURL := "http://www.capetown.gov.za/damlevels"
+	actualURL := d.Dams.DescriptionURL
+
+	if actualURL != expectedURL {
+		t.Fatalf("expected `%v`, got `%v`", expectedURL, actualURL)
+	}
 }
 
 func TestOtherDescription(t *testing.T) {
