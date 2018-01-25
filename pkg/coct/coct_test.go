@@ -100,6 +100,16 @@ func TestCityProgress(t *testing.T) {
 	}
 }
 
+func TestFindAreaAndType(t *testing.T) {
+	a, ty := areaAndType("Cape Town Harbour (Desalination)")
+	if a != "Cape Town Harbour" {
+		t.Fatalf("expected `%v`, got `%v`", "Cape Town Harbour", a)
+	}
+	if ty != "Desalination" {
+		t.Fatalf("expected `%v`, got `%v`", "Desalination", ty)
+	}
+}
+
 func TestCityProjects(t *testing.T) {
 	b, _ := ioutil.ReadFile("./test.html")
 	d, _ := Parse(bytes.NewReader(b))
@@ -108,8 +118,12 @@ func TestCityProjects(t *testing.T) {
 		t.Fatalf("expected `%v`, got `%v`", 7, len(d.City.Projects))
 	}
 
-	if d.City.Projects[0].Name != "Cape Town Harbour (Desalination)" {
-		t.Fatalf("expected `%s`, got `%s`", "Cape Town Harbour (Desalination)", d.City.Projects[0].Name)
+	if d.City.Projects[0].Area != "Cape Town Harbour" {
+		t.Fatalf("expected `%s`, got `%s`", "Cape Town Harbour", d.City.Projects[0].Area)
+	}
+
+	if d.City.Projects[0].Type != "Desalination" {
+		t.Fatalf("expected `%s`, got `%s`", "Desalination", d.City.Projects[0].Type)
 	}
 
 	if d.City.Projects[0].Percentage != 50 {
@@ -133,8 +147,12 @@ func TestOtherProjects(t *testing.T) {
 		t.Fatalf("expected `%v`, got `%v`", 12, len(d.Other.Projects))
 	}
 
-	if d.Other.Projects[0].Name != "Hout Bay (Desalination)" {
-		t.Fatalf("expected `%s`, got `%s`", "Hout Bay (Desalination)", d.Other.Projects[0].Name)
+	if d.Other.Projects[0].Area != "Hout Bay" {
+		t.Fatalf("expected `%s`, got `%s`", "Hout Bay", d.Other.Projects[0].Area)
+	}
+
+	if d.Other.Projects[0].Type != "Desalination" {
+		t.Fatalf("expected `%s`, got `%s`", "Desalination", d.Other.Projects[0].Type)
 	}
 
 	if d.Other.Projects[0].Percentage != 45 {

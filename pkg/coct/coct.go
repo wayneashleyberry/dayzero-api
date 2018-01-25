@@ -35,7 +35,8 @@ type Other struct {
 
 // Project represents an effort that the city is undergoing to increase water supply.
 type Project struct {
-	Name       string  `json:"name"`
+	Area       string  `json:"area"`
+	Type       string  `json:"type"`
 	Percentage float64 `json:"percentage"`
 	// Status will be -1, 0 or 1 - representing behind schedule, unknown and ahead of schedule.
 	Status int `json:"status"`
@@ -196,11 +197,18 @@ func Parse(r io.Reader) (Dashboard, error) {
 	return d, nil
 }
 
+func areaAndType(s string) (string, string) {
+	parts := strings.Split(s, "(")
+	return strings.TrimSpace(parts[0]), strings.Replace(parts[1], ")", "", 1)
+}
+
 func getCityProjects(doc *goquery.Document) ([]Project, error) {
 	ps := []Project{}
 	doc.Find(".box .areas").Find(".area").Each(func(index int, el *goquery.Selection) {
 		var p Project
-		p.Name = el.Find("p").Text()
+		area, typeOfProject := areaAndType(el.Find("p").Text())
+		p.Area = area
+		p.Type = typeOfProject
 		percentS := el.Find(".pval").Text()
 		percentS = strings.Replace(percentS, "%", "", 1)
 		percent, err := strconv.ParseFloat(percentS, 64)
@@ -222,7 +230,9 @@ func getOtherProjects(doc *goquery.Document) ([]Project, error) {
 	ps := []Project{}
 	doc.Find(".other_projects").Eq(1).Find(".area").Each(func(index int, el *goquery.Selection) {
 		var p Project
-		p.Name = el.Find("h4").Text()
+		area, typeOfProject := areaAndType(el.Find("h4").Text())
+		p.Area = area
+		p.Type = typeOfProject
 		percentS := el.Find(".pval").Text()
 		percentS = strings.Replace(percentS, "%", "", 1)
 		percent, err := strconv.ParseFloat(percentS, 64)
