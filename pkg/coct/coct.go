@@ -12,18 +12,20 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	humanize "github.com/dustin/go-humanize"
 	"google.golang.org/appengine/memcache"
 	"google.golang.org/appengine/urlfetch"
 )
 
 type Dashboard struct {
-	DayZero     time.Time   `json:"dayzero"`
-	City        City        `json:"city"`
-	Dams        Dams        `json:"dams"`
-	CapeTonians CapeTonians `json:"capetonians"`
-	Other       Other       `json:"other"`
-	Disclaimer  string      `json:"disclaimer"`
-	Cached      bool        `json:"cached"`
+	DayZero       time.Time   `json:"dayzero"`
+	DayZeroHumane string      `json:"dayzero_humane"`
+	City          City        `json:"city"`
+	Dams          Dams        `json:"dams"`
+	CapeTonians   CapeTonians `json:"capetonians"`
+	Other         Other       `json:"other"`
+	Disclaimer    string      `json:"disclaimer"`
+	Cached        bool        `json:"cached"`
 }
 
 type Other struct {
@@ -143,6 +145,7 @@ func Parse(r io.Reader) (Dashboard, error) {
 		return d, err
 	}
 	d.DayZero = dayZero
+	d.DayZeroHumane = humanize.Time(dayZero)
 
 	level, err := getDamLevel(doc)
 	if err != nil {
