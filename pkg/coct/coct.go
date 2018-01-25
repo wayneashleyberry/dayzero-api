@@ -31,15 +31,18 @@ type Other struct {
 	Projects    []Project `json:"projects"`
 }
 
+// Project represents an effort that the city is undergoing to increase water supply.
 type Project struct {
 	Name       string  `json:"name"`
 	Percentage float64 `json:"percentage"`
-	Status     int     `json:"status"`
+	// Status will be -1, 0 or 1 - representing behind schedule, unknown and ahead of schedule.
+	Status int `json:"status"`
 }
 
 type Trend struct {
-	Amount    float64 `json:"amount"`
-	Direction int     `json:"direction"`
+	Amount float64 `json:"amount"`
+	// Direction will be -1, 0 or 1 - representing negative, unknown or positive.
+	Direction int `json:"direction"`
 }
 
 type Dams struct {
