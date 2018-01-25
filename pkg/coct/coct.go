@@ -44,7 +44,7 @@ type CapeTonians struct {
 }
 
 type City struct {
-	Progress int       `json:"progress"`
+	Progress float64   `json:"progress"`
 	Projects []Project `json:"projects"`
 }
 
@@ -90,6 +90,12 @@ func Parse(r io.Reader) (Dashboard, error) {
 	}
 	d.CapeTonians.Amount = amount
 
+	progress, err := getCityProgress(doc)
+	if err != nil {
+		return d, err
+	}
+	d.City.Progress = progress
+
 	// TODO
 	d.City.Projects = []Project{}
 	d.Other = []Project{}
@@ -106,7 +112,14 @@ func getCapeTonianAmount(doc *goquery.Document) (float64, error) {
 
 func getDamLevel(doc *goquery.Document) (float64, error) {
 	levelS := doc.Find(".percentage_label").Eq(1).Text()
-	levelS = levelS[0:4]
+	levelS = strings.Replace(levelS, "%", "", 1)
+
+	return strconv.ParseFloat(levelS, 64)
+}
+
+func getCityProgress(doc *goquery.Document) (float64, error) {
+	levelS := doc.Find(".percentage_label").Eq(0).Text()
+	levelS = strings.Replace(levelS, "%", "", 1)
 
 	return strconv.ParseFloat(levelS, 64)
 }
@@ -117,7 +130,7 @@ func getDayZero(doc *goquery.Document) (time.Time, error) {
 	h3 = strings.Replace(h3, "\n", "", -1)
 
 	if len(h3) < 8 {
-		return time.Now(), errors.New("invalid length for h3")
+		return time.Now(), errors.New("invalid string length for <h3>")
 	}
 
 	dayS := h3[0:2]
