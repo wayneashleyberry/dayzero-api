@@ -83,7 +83,7 @@ func GetCached(ctx context.Context, r *http.Request) (io.Reader, bool, error) {
 	newItem := &memcache.Item{
 		Key:        key,
 		Value:      value,
-		Expiration: time.Duration(time.Minute * 5),
+		Expiration: time.Duration(time.Hour * 1),
 	}
 	memcache.Add(ctx, newItem)
 
