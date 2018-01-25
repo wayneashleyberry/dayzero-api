@@ -18,8 +18,14 @@ type Dashboard struct {
 	City        City        `json:"city"`
 	Dams        Dams        `json:"dams"`
 	CapeTonians CapeTonians `json:"capetonians"`
-	Other       []Project   `json:"other"`
+	Other       Other       `json:"other"`
+	Disclaimer  string      `json:"disclaimer"`
 	Timestamp   time.Time   `json:"timestamp"`
+}
+
+type Other struct {
+	Description string    `json:"description"`
+	Projects    []Project `json:"projects"`
 }
 
 type Project struct {
@@ -34,18 +40,21 @@ type Trend struct {
 }
 
 type Dams struct {
-	Level float64 `json:"level"`
-	Trend Trend   `json:"trend"`
+	Description string  `json:"description"`
+	Level       float64 `json:"level"`
+	Trend       Trend   `json:"trend"`
 }
 
 type CapeTonians struct {
-	Amount float64 `json:"amount"`
-	Trend  Trend   `json:"trend"`
+	Description string  `json:"description"`
+	Amount      float64 `json:"amount"`
+	Trend       Trend   `json:"trend"`
 }
 
 type City struct {
-	Progress float64   `json:"progress"`
-	Projects []Project `json:"projects"`
+	Description string    `json:"description"`
+	Progress    float64   `json:"progress"`
+	Projects    []Project `json:"projects"`
 }
 
 func Get() (io.Reader, error) {
@@ -63,6 +72,11 @@ func Get() (io.Reader, error) {
 	return bytes.NewReader(body), nil
 }
 
+func clean(s string) string {
+	s = strings.Replace(s, "\n", "", -1)
+	return strings.Join(strings.Fields(s), " ")
+}
+
 func Parse(r io.Reader) (Dashboard, error) {
 	var d Dashboard
 	d.Timestamp = time.Now()
@@ -71,6 +85,11 @@ func Parse(r io.Reader) (Dashboard, error) {
 	if err != nil {
 		return d, err
 	}
+
+	d.City.Description = clean(doc.Find(".header").Eq(0).Find("p").Text())
+	d.Dams.Description = clean(doc.Find(".header").Eq(2).Find("p").Text())
+	d.CapeTonians.Description = clean(doc.Find(".header").Eq(3).Find("p").Text())
+	d.Other.Description = clean(doc.Find(".header").Eq(4).Find("p").Text())
 
 	dayZero, err := getDayZero(doc)
 	if err != nil {
@@ -116,7 +135,7 @@ func Parse(r io.Reader) (Dashboard, error) {
 	if err != nil {
 		return d, err
 	}
-	d.Other = otherProjects
+	d.Other.Projects = otherProjects
 
 	cityProjects, err := getCityProjects(doc)
 	if err != nil {
@@ -220,7 +239,7 @@ func getCityProgress(doc *goquery.Document) (float64, error) {
 }
 
 func getDayZero(doc *goquery.Document) (time.Time, error) {
-	h3 := doc.Find("h3").First().Text()
+	h3 := clean(doc.Find("h3").First().Text())
 	h3 = strings.Replace(h3, " ", "", -1)
 	h3 = strings.Replace(h3, "\n", "", -1)
 

@@ -7,6 +7,19 @@ import (
 	"time"
 )
 
+func TestClean(t *testing.T) {
+	expected := "foo bar"
+	actual := clean(`
+		foo    
+		   bar
+
+		`)
+
+	if actual != expected {
+		t.Fatalf("expected `%v`, got `%v`", expected, actual)
+	}
+}
+
 func TestDayZero(t *testing.T) {
 	b, _ := ioutil.ReadFile("./test.html")
 	d, _ := Parse(bytes.NewReader(b))
@@ -116,15 +129,59 @@ func TestOtherProjects(t *testing.T) {
 	b, _ := ioutil.ReadFile("./test.html")
 	d, _ := Parse(bytes.NewReader(b))
 
-	if len(d.Other) != 12 {
-		t.Fatalf("expected `%v`, got `%v`", 12, len(d.Other))
+	if len(d.Other.Projects) != 12 {
+		t.Fatalf("expected `%v`, got `%v`", 12, len(d.Other.Projects))
 	}
 
-	if d.Other[0].Name != "Hout Bay (Desalination)" {
-		t.Fatalf("expected `%s`, got `%s`", "Hout Bay (Desalination)", d.Other[0].Name)
+	if d.Other.Projects[0].Name != "Hout Bay (Desalination)" {
+		t.Fatalf("expected `%s`, got `%s`", "Hout Bay (Desalination)", d.Other.Projects[0].Name)
 	}
 
-	if d.Other[0].Percentage != 45 {
-		t.Fatalf("expected `%v`, got `%v`", 45, d.Other[0].Percentage)
+	if d.Other.Projects[0].Percentage != 45 {
+		t.Fatalf("expected `%v`, got `%v`", 45, d.Other.Projects[0].Percentage)
+	}
+}
+
+func TestCapeTonianDescription(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+	expected := "Percentage of residents using 87 l or less per day."
+	actual := d.CapeTonians.Description
+
+	if actual != expected {
+		t.Fatalf("expected `%v`, got `%v`", expected, actual)
+	}
+}
+
+func TestCityDescription(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+	expected := "The City's progress on securing alternative water sources."
+	actual := d.City.Description
+
+	if actual != expected {
+		t.Fatalf("expected `%v`, got `%v`", expected, actual)
+	}
+}
+
+func TestDamsDescription(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+	expected := "Combined level of dams supplying the city. For more info click here."
+	actual := d.Dams.Description
+
+	if actual != expected {
+		t.Fatalf("expected `%v`, got `%v`", expected, actual)
+	}
+}
+
+func TestOtherDescription(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+	expected := "Additional projects in advanced stage of planning that are ready to proceed if required."
+	actual := d.Other.Description
+
+	if actual != expected {
+		t.Fatalf("expected `%v`, got `%v`", expected, actual)
 	}
 }
