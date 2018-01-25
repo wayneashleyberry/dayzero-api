@@ -2,6 +2,7 @@ package coct
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -11,7 +12,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"google.golang.org/appengine"
+	"google.golang.org/appengine/memcache"
 	"google.golang.org/appengine/urlfetch"
 )
 
@@ -22,7 +23,7 @@ type Dashboard struct {
 	CapeTonians CapeTonians `json:"capetonians"`
 	Other       Other       `json:"other"`
 	Disclaimer  string      `json:"disclaimer"`
-	Timestamp   time.Time   `json:"timestamp"`
+	Cached      bool        `json:"cached"`
 }
 
 type Other struct {
@@ -60,8 +61,37 @@ type City struct {
 	Projects    []Project `json:"projects"`
 }
 
-func Get(r *http.Request) (io.Reader, error) {
-	ctx := appengine.NewContext(r)
+func GetCached(ctx context.Context, r *http.Request) (io.Reader, bool, error) {
+	key := "api/dashboard"
+
+	item, err := memcache.Get(ctx, key)
+	if err == nil {
+		reader := bytes.NewReader(item.Value)
+		return reader, true, nil
+	}
+
+	uncached, err := Get(ctx)
+	if err != nil {
+		return bytes.NewReader([]byte("")), false, err
+	}
+
+	value, err := ioutil.ReadAll(uncached)
+	if err != nil {
+		return bytes.NewReader([]byte("")), false, err
+	}
+
+	newItem := &memcache.Item{
+		Key:        key,
+		Value:      value,
+		Expiration: time.Duration(time.Minute * 5),
+	}
+	memcache.Add(ctx, newItem)
+
+	return uncached, false, nil
+
+}
+
+func Get(ctx context.Context) (io.Reader, error) {
 	client := urlfetch.Client(ctx)
 	resp, err := client.Get("http://coct.co/water-dashboard/")
 
@@ -82,7 +112,6 @@ func clean(s string) string {
 
 func Parse(r io.Reader) (Dashboard, error) {
 	var d Dashboard
-	d.Timestamp = time.Now()
 	d.Disclaimer = "Data provided by the City of Cape Town from http://coct.co/water-dashboard/"
 
 	doc, err := goquery.NewDocumentFromReader(r)

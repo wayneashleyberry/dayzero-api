@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/wayneashleyberry/dayzero-app/pkg/coct"
+	"google.golang.org/appengine"
 )
 
 func init() {
@@ -18,7 +19,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func dashboardHandler(w http.ResponseWriter, r *http.Request) {
-	body, err := coct.Get(r)
+	ctx := appengine.NewContext(r)
+	body, cached, err := coct.GetCached(ctx, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -29,6 +31,8 @@ func dashboardHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	dash.Cached = cached
 
 	b, err := json.Marshal(dash)
 	if err != nil {
