@@ -101,6 +101,9 @@ func Get(ctx context.Context) (io.Reader, error) {
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return bytes.NewReader([]byte("")), err
+	}
 
 	return bytes.NewReader(body), nil
 }
