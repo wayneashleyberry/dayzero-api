@@ -73,6 +73,43 @@ func Parse(r io.Reader) (Dashboard, error) {
 
 	// Day Zero
 
+	dayZero, err := getDayZero(doc)
+	if err == nil {
+		d.DayZero = dayZero
+	}
+
+	// Dam Level
+
+	level, err := getDamLevel(doc)
+	if err == nil {
+		d.Dams.Level = level
+	}
+
+	// CapeTonian Amount
+
+	amount, err := getCapeTonianAmount(doc)
+	if err == nil {
+		d.CapeTonians.Amount = amount
+	}
+
+	return d, nil
+}
+
+func getCapeTonianAmount(doc *goquery.Document) (float64, error) {
+	amountS := doc.Find(".percentage_label").Eq(2).Text()
+	amountS = strings.Replace(amountS, "%", "", -1)
+
+	return strconv.ParseFloat(amountS, 64)
+}
+
+func getDamLevel(doc *goquery.Document) (float64, error) {
+	levelS := doc.Find(".percentage_label").Eq(1).Text()
+	levelS = levelS[0:4]
+
+	return strconv.ParseFloat(levelS, 64)
+}
+
+func getDayZero(doc *goquery.Document) (time.Time, error) {
 	h3 := doc.Find("h3").First().Text()
 	h3 = strings.TrimSpace(h3)
 	h3 = strings.Replace(h3, " ", "", -1)
@@ -83,45 +120,23 @@ func Parse(r io.Reader) (Dashboard, error) {
 
 	day, err := strconv.Atoi(dayS)
 	if err != nil {
-		return d, err
+		return time.Now(), err
 	}
 
 	month, err := strconv.Atoi(monthS)
 	if err != nil {
-		return d, err
+		return time.Now(), err
 	}
 
 	year, err := strconv.Atoi(yearS)
 	if err != nil {
-		return d, err
+		return time.Now(), err
 	}
 
 	loc, err := time.LoadLocation("Africa/Johannesburg")
 	if err != nil {
-		return d, err
+		return time.Now(), err
 	}
 
-	d.DayZero = time.Date(year, time.Month(month), day, 0, 0, 0, 0, loc)
-
-	// Dam Level
-
-	levelS := doc.Find(".percentage_label").Eq(1).Text()
-	levelS = levelS[0:4]
-
-	level, err := strconv.ParseFloat(levelS, 64)
-	if err == nil {
-		d.Dams.Level = level
-	}
-
-	// CapeTonian Amount
-
-	amountS := doc.Find(".percentage_label").Eq(2).Text()
-	amountS = strings.Replace(amountS, "%", "", -1)
-
-	amount, err := strconv.ParseFloat(amountS, 64)
-	if err == nil {
-		d.CapeTonians.Amount = amount
-	}
-
-	return d, nil
+	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, loc), nil
 }
