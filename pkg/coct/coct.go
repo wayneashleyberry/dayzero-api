@@ -29,8 +29,8 @@ type Project struct {
 }
 
 type Trend struct {
-	Amount    int  `json:"amount"`
-	Direction bool `json:"direction"`
+	Amount    int `json:"amount"`
+	Direction int `json:"direction"`
 }
 
 type Dams struct {
@@ -72,15 +72,11 @@ func Parse(r io.Reader) (Dashboard, error) {
 		return d, err
 	}
 
-	// Day Zero
-
 	dayZero, err := getDayZero(doc)
 	if err != nil {
 		return d, err
 	}
 	d.DayZero = dayZero
-
-	// Dam Level
 
 	level, err := getDamLevel(doc)
 	if err != nil {
@@ -88,13 +84,15 @@ func Parse(r io.Reader) (Dashboard, error) {
 	}
 	d.Dams.Level = level
 
-	// CapeTonian Amount
-
 	amount, err := getCapeTonianAmount(doc)
 	if err != nil {
 		return d, err
 	}
 	d.CapeTonians.Amount = amount
+
+	// TODO
+	d.City.Projects = []Project{}
+	d.Other = []Project{}
 
 	return d, nil
 }
