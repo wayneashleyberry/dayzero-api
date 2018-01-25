@@ -38,8 +38,8 @@ type Dams struct {
 }
 
 type CapeTonians struct {
-	Amount int   `json:"amount"`
-	Trend  Trend `json:"trend"`
+	Amount float64 `json:"amount"`
+	Trend  Trend   `json:"trend"`
 }
 
 type City struct {
@@ -111,6 +111,16 @@ func Parse(r io.Reader) (Dashboard, error) {
 	level, err := strconv.ParseFloat(levelS, 64)
 	if err == nil {
 		d.Dams.Level = level
+	}
+
+	// CapeTonian Amount
+
+	amountS := doc.Find(".percentage_label").Eq(2).Text()
+	amountS = strings.Replace(amountS, "%", "", -1)
+
+	amount, err := strconv.ParseFloat(amountS, 64)
+	if err == nil {
+		d.CapeTonians.Amount = amount
 	}
 
 	return d, nil
