@@ -12,13 +12,41 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-// Dashboard is a struct containing parsed data from the COCT website's dashboard.
 type Dashboard struct {
-	DayZero   time.Time `json:"dayzero"`
-	Timestamp time.Time `json:"timestamp"`
+	DayZero     time.Time   `json:"dayzero"`
+	City        City        `json:"city"`
+	Dams        Dams        `json:"dams"`
+	CapeTonians CapeTonians `json:"capetonians"`
+	Other       []Project   `json:"other"`
+	Timestamp   time.Time   `json:"timestamp"`
 }
 
-// Get will perform an HTTP GET request to download the dashboard.
+type Project struct {
+	Description string `json:"description"`
+	Percentage  int    `json:"percentage"`
+	Status      int    `json:"status"`
+}
+
+type Trend struct {
+	Amount    int  `json:"amount"`
+	Direction bool `json:"direction"`
+}
+
+type Dams struct {
+	Level int   `json:"level"`
+	Trend Trend `json:"trend"`
+}
+
+type CapeTonians struct {
+	Amount int   `json:"amount"`
+	Trend  Trend `json:"trend"`
+}
+
+type City struct {
+	Progress int       `json:"progress"`
+	Projects []Project `json:"projects"`
+}
+
 func Get() (io.Reader, error) {
 	var client = &http.Client{
 		Timeout: time.Second * 30,
@@ -27,12 +55,13 @@ func Get() (io.Reader, error) {
 	if err != nil {
 		return bytes.NewReader([]byte("")), err
 	}
+
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+
 	return bytes.NewReader(body), nil
 }
 
-// Parse will extract structured data from html.
 func Parse(r io.Reader) (Dashboard, error) {
 	var d Dashboard
 	d.Timestamp = time.Now()
