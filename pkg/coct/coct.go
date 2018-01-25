@@ -125,7 +125,7 @@ func clean(s string) string {
 
 func Parse(r io.Reader) (Dashboard, error) {
 	var d Dashboard
-	d.Disclaimer = "Data provided by the City of Cape Town from http://coct.co/water-dashboard/"
+	d.Disclaimer = "Data provided by the City of Cape Town (http://coct.co/water-dashboard/)"
 
 	doc, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
