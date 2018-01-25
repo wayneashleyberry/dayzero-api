@@ -27,4 +27,8 @@ func TestParse(t *testing.T) {
 	if d.DayZero.Day() != 12 {
 		t.Fatalf("expected `%d`, got `%d`", 12, d.DayZero.Day())
 	}
+
+	if d.Dams.Level != 27.2 {
+		t.Fatalf("expected `%.2f`, got `%.2f`", 27.2, d.Dams.Level)
+	}
 }

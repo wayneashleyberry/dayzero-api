@@ -33,8 +33,8 @@ type Trend struct {
 }
 
 type Dams struct {
-	Level int   `json:"level"`
-	Trend Trend `json:"trend"`
+	Level float32 `json:"level"`
+	Trend Trend   `json:"trend"`
 }
 
 type CapeTonians struct {
