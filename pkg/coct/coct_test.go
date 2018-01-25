@@ -94,4 +94,12 @@ func TestOtherProjects(t *testing.T) {
 	if len(d.Other) != 12 {
 		t.Fatalf("expected `%v`, got `%v`", 12, len(d.Other))
 	}
+
+	if d.Other[0].Name != "Hout Bay (Desalination)" {
+		t.Fatalf("expected `%s`, got `%s`", "Hout Bay (Desalination)", d.Other[0].Name)
+	}
+
+	if d.Other[0].Percentage != 45 {
+		t.Fatalf("expected `%v`, got `%v`", 45, d.Other[0].Percentage)
+	}
 }

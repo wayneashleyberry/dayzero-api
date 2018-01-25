@@ -23,9 +23,9 @@ type Dashboard struct {
 }
 
 type Project struct {
-	Description string `json:"description"`
-	Percentage  int    `json:"percentage"`
-	Status      int    `json:"status"`
+	Name       string  `json:"name"`
+	Percentage float64 `json:"percentage"`
+	Status     int     `json:"status"`
 }
 
 type Trend struct {
@@ -126,8 +126,20 @@ func Parse(r io.Reader) (Dashboard, error) {
 }
 
 func getOtherProjects(doc *goquery.Document) ([]Project, error) {
-	p := []Project{}
-	return p, nil
+	ps := []Project{}
+	doc.Find(".other_projects").Eq(1).Find(".area").Each(func(index int, el *goquery.Selection) {
+		var p Project
+		p.Name = el.Find("h4").Text()
+		percentS := el.Find(".pval").Text()
+		percentS = strings.Replace(percentS, "%", "", 1)
+		percent, err := strconv.ParseFloat(percentS, 64)
+		if err != nil {
+			return
+		}
+		p.Percentage = percent
+		ps = append(ps, p)
+	})
+	return ps, nil
 }
 
 func getDamTrendAmount(doc *goquery.Document) (float64, error) {
