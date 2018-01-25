@@ -12,11 +12,13 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Dashboard is a struct containing parsed data from the COCT website's dashboard.
 type Dashboard struct {
 	DayZero   time.Time `json:"dayzero"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// Get will perform an HTTP GET request to download the dashboard.
 func Get() (io.Reader, error) {
 	var client = &http.Client{
 		Timeout: time.Second * 30,
@@ -30,6 +32,7 @@ func Get() (io.Reader, error) {
 	return bytes.NewReader(body), nil
 }
 
+// Parse will extract structured data from html.
 func Parse(r io.Reader) (Dashboard, error) {
 	var d Dashboard
 	d.Timestamp = time.Now()
