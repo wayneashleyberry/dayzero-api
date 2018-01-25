@@ -10,12 +10,12 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-type Specification struct {
+type specification struct {
 	Port int64 `default:"8080"`
 }
 
 func main() {
-	var s Specification
+	var s specification
 	envconfig.MustProcess("", &s)
 
 	r := chi.NewRouter()
