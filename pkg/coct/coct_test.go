@@ -60,6 +60,24 @@ func TestCapeTonianAmount(t *testing.T) {
 	}
 }
 
+func TestCapeTonianTrendAmount(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+
+	if d.CapeTonians.Trend.Amount != 2 {
+		t.Fatalf("expected `%v`, got `%v`", 2, d.CapeTonians.Trend.Amount)
+	}
+}
+
+func TestCapeTonianTrendDirection(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+
+	if d.CapeTonians.Trend.Direction != 1 {
+		t.Fatalf("expected `%v`, got `%v`", 1, d.CapeTonians.Trend.Direction)
+	}
+}
+
 func TestCityProgress(t *testing.T) {
 	b, _ := ioutil.ReadFile("./test.html")
 	d, _ := Parse(bytes.NewReader(b))

@@ -98,6 +98,14 @@ func Parse(r io.Reader) (Dashboard, error) {
 	}
 	d.CapeTonians.Amount = amount
 
+	capeTonianTrendAmount, err := getCapeTonianTrendAmount(doc)
+	if err != nil {
+		return d, err
+	}
+	d.CapeTonians.Trend.Amount = capeTonianTrendAmount
+
+	d.CapeTonians.Trend.Direction = getCapeTonianTrendDirection(doc)
+
 	progress, err := getCityProgress(doc)
 	if err != nil {
 		return d, err
@@ -119,6 +127,22 @@ func getDamTrendAmount(doc *goquery.Document) (float64, error) {
 
 func getDamTrendDirection(doc *goquery.Document) int {
 	span := doc.Find(".box").Eq(1).Find(".footer span")
+	if span.HasClass("down") {
+		return -1
+	} else if span.HasClass("up") {
+		return 1
+	}
+	return 0
+}
+
+func getCapeTonianTrendAmount(doc *goquery.Document) (float64, error) {
+	amount := doc.Find(".box").Eq(2).Find(".footer span").Text()
+	amount = strings.Replace(amount, "%", "", -1)
+	return strconv.ParseFloat(amount, 64)
+}
+
+func getCapeTonianTrendDirection(doc *goquery.Document) int {
+	span := doc.Find(".box").Eq(2).Find(".footer span")
 	if span.HasClass("down") {
 		return -1
 	} else if span.HasClass("up") {
