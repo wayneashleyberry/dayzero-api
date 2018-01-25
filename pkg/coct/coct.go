@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/urlfetch"
 )
 
 type Dashboard struct {
@@ -58,11 +60,11 @@ type City struct {
 	Projects    []Project `json:"projects"`
 }
 
-func Get() (io.Reader, error) {
-	var client = &http.Client{
-		Timeout: time.Second * 30,
-	}
+func Get(r *http.Request) (io.Reader, error) {
+	ctx := appengine.NewContext(r)
+	client := urlfetch.Client(ctx)
 	resp, err := client.Get("http://coct.co/water-dashboard/")
+
 	if err != nil {
 		return bytes.NewReader([]byte("")), err
 	}
@@ -81,6 +83,7 @@ func clean(s string) string {
 func Parse(r io.Reader) (Dashboard, error) {
 	var d Dashboard
 	d.Timestamp = time.Now()
+	d.Disclaimer = "Data provided by the City of Cape Town from http://coct.co/water-dashboard/"
 
 	doc, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
