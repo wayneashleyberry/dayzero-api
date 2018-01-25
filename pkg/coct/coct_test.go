@@ -87,6 +87,31 @@ func TestCityProgress(t *testing.T) {
 	}
 }
 
+func TestCityProjects(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+
+	if len(d.City.Projects) != 7 {
+		t.Fatalf("expected `%v`, got `%v`", 7, len(d.City.Projects))
+	}
+
+	if d.City.Projects[0].Name != "Cape Town Harbour (Desalination)" {
+		t.Fatalf("expected `%s`, got `%s`", "Cape Town Harbour (Desalination)", d.City.Projects[0].Name)
+	}
+
+	if d.City.Projects[0].Percentage != 50 {
+		t.Fatalf("expected `%v`, got `%v`", 50, d.City.Projects[0].Percentage)
+	}
+
+	if d.City.Projects[0].Status != -1 {
+		t.Fatalf("expected `%v`, got `%v`", -1, d.City.Projects[0].Status)
+	}
+
+	if d.City.Projects[3].Status != 1 {
+		t.Fatalf("expected `%v`, got `%v`", 1, d.City.Projects[3].Status)
+	}
+}
+
 func TestOtherProjects(t *testing.T) {
 	b, _ := ioutil.ReadFile("./test.html")
 	d, _ := Parse(bytes.NewReader(b))

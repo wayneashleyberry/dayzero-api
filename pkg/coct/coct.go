@@ -118,11 +118,35 @@ func Parse(r io.Reader) (Dashboard, error) {
 	}
 	d.Other = otherProjects
 
-	// TODO
-
-	d.City.Projects = []Project{}
+	cityProjects, err := getCityProjects(doc)
+	if err != nil {
+		return d, err
+	}
+	d.City.Projects = cityProjects
 
 	return d, nil
+}
+
+func getCityProjects(doc *goquery.Document) ([]Project, error) {
+	ps := []Project{}
+	doc.Find(".box .areas").Find(".area").Each(func(index int, el *goquery.Selection) {
+		var p Project
+		p.Name = el.Find("p").Text()
+		percentS := el.Find(".pval").Text()
+		percentS = strings.Replace(percentS, "%", "", 1)
+		percent, err := strconv.ParseFloat(percentS, 64)
+		if err != nil {
+			return
+		}
+		p.Percentage = percent
+		if el.Is(".behind_schedule") {
+			p.Status = -1
+		} else if el.Is(".on_schedule") {
+			p.Status = 1
+		}
+		ps = append(ps, p)
+	})
+	return ps, nil
 }
 
 func getOtherProjects(doc *goquery.Document) ([]Project, error) {
