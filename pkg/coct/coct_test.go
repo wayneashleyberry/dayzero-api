@@ -86,3 +86,12 @@ func TestCityProgress(t *testing.T) {
 		t.Fatalf("expected `%v`, got `%v`", 57.0, d.City.Progress)
 	}
 }
+
+func TestOtherProjects(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+
+	if len(d.Other) != 12 {
+		t.Fatalf("expected `%v`, got `%v`", 12, len(d.Other))
+	}
+}

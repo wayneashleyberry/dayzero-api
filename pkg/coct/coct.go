@@ -112,11 +112,22 @@ func Parse(r io.Reader) (Dashboard, error) {
 	}
 	d.City.Progress = progress
 
+	otherProjects, err := getOtherProjects(doc)
+	if err != nil {
+		return d, err
+	}
+	d.Other = otherProjects
+
 	// TODO
+
 	d.City.Projects = []Project{}
-	d.Other = []Project{}
 
 	return d, nil
+}
+
+func getOtherProjects(doc *goquery.Document) ([]Project, error) {
+	p := []Project{}
+	return p, nil
 }
 
 func getDamTrendAmount(doc *goquery.Document) (float64, error) {
