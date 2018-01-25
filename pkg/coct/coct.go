@@ -29,8 +29,8 @@ type Project struct {
 }
 
 type Trend struct {
-	Amount    int `json:"amount"`
-	Direction int `json:"direction"`
+	Amount    float64 `json:"amount"`
+	Direction int     `json:"direction"`
 }
 
 type Dams struct {
@@ -84,6 +84,14 @@ func Parse(r io.Reader) (Dashboard, error) {
 	}
 	d.Dams.Level = level
 
+	damTrendAmount, err := getDamTrendAmount(doc)
+	if err != nil {
+		return d, err
+	}
+	d.Dams.Trend.Amount = damTrendAmount
+
+	d.Dams.Trend.Direction = getDamTrendDirection(doc)
+
 	amount, err := getCapeTonianAmount(doc)
 	if err != nil {
 		return d, err
@@ -101,6 +109,22 @@ func Parse(r io.Reader) (Dashboard, error) {
 	d.Other = []Project{}
 
 	return d, nil
+}
+
+func getDamTrendAmount(doc *goquery.Document) (float64, error) {
+	amount := doc.Find(".box").Eq(1).Find(".footer span").Text()
+	amount = strings.Replace(amount, "%", "", -1)
+	return strconv.ParseFloat(amount, 64)
+}
+
+func getDamTrendDirection(doc *goquery.Document) int {
+	span := doc.Find(".box").Eq(1).Find(".footer span")
+	if span.HasClass("down") {
+		return -1
+	} else if span.HasClass("up") {
+		return 1
+	}
+	return 0
 }
 
 func getCapeTonianAmount(doc *goquery.Document) (float64, error) {

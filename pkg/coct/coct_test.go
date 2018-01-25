@@ -33,6 +33,24 @@ func TestDamLevel(t *testing.T) {
 	}
 }
 
+func TestDamTrendAmount(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+
+	if d.Dams.Trend.Amount != 1.5 {
+		t.Fatalf("expected `%v`, got `%v`", 1.5, d.Dams.Trend.Amount)
+	}
+}
+
+func TestDamTrendDirection(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+
+	if d.Dams.Trend.Direction != -1 {
+		t.Fatalf("expected `%v`, got `%v`", -1, d.Dams.Trend.Direction)
+	}
+}
+
 func TestCapeTonianAmount(t *testing.T) {
 	b, _ := ioutil.ReadFile("./test.html")
 	d, _ := Parse(bytes.NewReader(b))
