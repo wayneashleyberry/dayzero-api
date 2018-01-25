@@ -33,7 +33,7 @@ type Trend struct {
 }
 
 type Dams struct {
-	Level float32 `json:"level"`
+	Level float64 `json:"level"`
 	Trend Trend   `json:"trend"`
 }
 
@@ -71,6 +71,8 @@ func Parse(r io.Reader) (Dashboard, error) {
 		return d, err
 	}
 
+	// Day Zero
+
 	h3 := doc.Find("h3").First().Text()
 	h3 = strings.TrimSpace(h3)
 	h3 = strings.Replace(h3, " ", "", -1)
@@ -100,6 +102,16 @@ func Parse(r io.Reader) (Dashboard, error) {
 	}
 
 	d.DayZero = time.Date(year, time.Month(month), day, 0, 0, 0, 0, loc)
+
+	// Dam Level
+
+	levelS := doc.Find(".percentage_label").Eq(1).Text()
+	levelS = levelS[0:4]
+
+	level, err := strconv.ParseFloat(levelS, 64)
+	if err == nil {
+		d.Dams.Level = level
+	}
 
 	return d, nil
 }

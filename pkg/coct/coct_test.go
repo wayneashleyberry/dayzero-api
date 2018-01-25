@@ -2,14 +2,12 @@ package coct
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"testing"
 	"time"
 )
 
 func TestParse(t *testing.T) {
-	fmt.Println(time.Now().Location())
 	b, _ := ioutil.ReadFile("./test.html")
 	d, err := Parse(bytes.NewReader(b))
 	if err != nil {
@@ -29,6 +27,6 @@ func TestParse(t *testing.T) {
 	}
 
 	if d.Dams.Level != 27.2 {
-		t.Fatalf("expected `%.2f`, got `%.2f`", 27.2, d.Dams.Level)
+		t.Fatalf("expected `%v`, got `%v`", 27.2, d.Dams.Level)
 	}
 }
