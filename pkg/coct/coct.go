@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,13 +18,14 @@ import (
 )
 
 type Dashboard struct {
-	DayZero     time.Time   `json:"dayzero"`
-	City        City        `json:"city"`
-	Dams        Dams        `json:"dams"`
-	CapeTonians CapeTonians `json:"capetonians"`
-	Other       Other       `json:"other"`
-	Disclaimer  string      `json:"disclaimer"`
-	Cached      bool        `json:"cached"`
+	DayZero       time.Time   `json:"dayzero"`
+	StatsAsAtWeek time.Time   `json:"statsAsAtWeek"`
+	City          City        `json:"city"`
+	Dams          Dams        `json:"dams"`
+	CapeTonians   CapeTonians `json:"capetonians"`
+	Other         Other       `json:"other"`
+	Disclaimer    string      `json:"disclaimer"`
+	Cached        bool        `json:"cached"`
 }
 
 type Other struct {
@@ -191,6 +193,12 @@ func Parse(r io.Reader) (Dashboard, error) {
 	}
 	d.City.Projects = cityProjects
 
+	statsAsAtWeek, err := getStatsAsAtWeek(doc)
+	if err != nil {
+		return d, err
+	}
+	d.StatsAsAtWeek = statsAsAtWeek
+
 	return d, nil
 }
 
@@ -329,4 +337,52 @@ func getDayZero(doc *goquery.Document) (time.Time, error) {
 	}
 
 	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, loc), nil
+}
+
+func monthFromString(s string) (time.Month, error) {
+	s = strings.ToUpper(strings.TrimSpace(s))
+	now := time.Now()
+	for i := 1; i <= 12; i++ {
+		t := time.Date(2000, time.Month(i), 1, 1, 1, 1, 1, now.Location())
+		if strings.ToUpper(t.Format("January")) == s {
+			return time.Month(i), nil
+		}
+	}
+	return time.January, nil
+}
+
+func getStatsAsAtWeek(doc *goquery.Document) (time.Time, error) {
+	status := doc.Find(".status p").Text()
+	status = strings.Replace(status, "STATS AS AT WEEK ", "", 1)
+	fmt.Println(status)
+
+	parts := strings.Split(status, " ")
+
+	if len(parts) != 3 {
+		return time.Now(), errors.New("too few parts")
+	}
+
+	dayS := parts[0]
+	yearS := parts[2]
+	month, err := monthFromString(parts[1])
+	if err != nil {
+		return time.Now(), err
+	}
+
+	day, err := strconv.Atoi(dayS)
+	if err != nil {
+		return time.Now(), err
+	}
+
+	year, err := strconv.Atoi(yearS)
+	if err != nil {
+		return time.Now(), err
+	}
+
+	loc, err := time.LoadLocation("Africa/Johannesburg")
+	if err != nil {
+		return time.Now(), err
+	}
+
+	return time.Date(year, month, day, 0, 0, 0, 0, loc), nil
 }

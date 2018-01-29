@@ -210,3 +210,37 @@ func TestOtherDescription(t *testing.T) {
 		t.Fatalf("expected `%v`, got `%v`", expected, actual)
 	}
 }
+
+func TestMonthFromString(t *testing.T) {
+	testCases := []struct {
+		s    string
+		want time.Month
+	}{
+		{"JANUARY", time.January},
+		{"MARCH", time.March},
+		{"DECEMBER", time.December},
+	}
+	for _, tc := range testCases {
+		got, err := monthFromString(tc.s)
+		if err != nil {
+			t.Fatalf("err: %s", err)
+		}
+
+		if got != tc.want {
+			t.Errorf("wanted '%s' got '%s'", tc.want, got)
+		}
+	}
+
+}
+
+func TestStatsAsAtWeek(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test.html")
+	d, _ := Parse(bytes.NewReader(b))
+	loc, _ := time.LoadLocation("Africa/Johannesburg")
+
+	want := time.Date(2018, time.January, 22, 0, 0, 0, 0, loc)
+
+	if !want.Equal(d.StatsAsAtWeek) {
+		t.Fatalf("expected `%+v`, got `%+v`", want, d.StatsAsAtWeek)
+	}
+}
