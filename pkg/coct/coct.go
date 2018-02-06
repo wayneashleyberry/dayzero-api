@@ -286,6 +286,10 @@ func getCapeTonianAmount(doc *goquery.Document) (float64, error) {
 	amountS := doc.Find(".percentage_label").Eq(2).Text()
 	amountS = strings.Replace(amountS, "%", "", -1)
 
+	if len(amountS) == 0 {
+		return -1, nil
+	}
+
 	return strconv.ParseFloat(amountS, 64)
 }
 

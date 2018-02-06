@@ -73,6 +73,15 @@ func TestCapeTonianAmount(t *testing.T) {
 	}
 }
 
+func TestCapeTonianAmountUnderReview(t *testing.T) {
+	b, _ := ioutil.ReadFile("./test2.html")
+	d, _ := Parse(bytes.NewReader(b))
+
+	if d.CapeTonians.Amount != -1 {
+		t.Fatalf("expected `%v`, got `%v`", -1, d.CapeTonians.Amount)
+	}
+}
+
 func TestCapeTonianTrendAmount(t *testing.T) {
 	b, _ := ioutil.ReadFile("./test.html")
 	d, _ := Parse(bytes.NewReader(b))
